@@ -2,6 +2,9 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 
 Resources:
+  #
+  # DynamoDB table for flashcards
+  #
   FlashcardsTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -22,3 +25,100 @@ Resources:
 
       SSESpecification:
         SSEEnabled: true
+        
+  #
+  # Cognito User Pool (private users)
+  #
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Sub flashcards-userpool
+      AutoVerifiedAttributes:
+        - email
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireLowercase: true
+          RequireNumbers: false
+          RequireSymbols: false
+          RequireUppercase: false
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: false
+
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: !Sub flashcards-client
+      GenerateSecret: false
+      UserPoolId: !Ref UserPool
+      ExplicitAuthFlows:
+        - ALLOW_USER_PASSWORD_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+      PreventUserExistenceErrors: ENABLED
+      RefreshTokenValidity: 30
+      
+  #
+  # HTTP API (HTTP API v2) with Cognito JWT Authorizer
+  #
+  FlashcardsApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      Name: !Sub flashcards-httpapi
+      CorsConfiguration:
+        AllowOrigins:
+          - '*'
+        AllowMethods:
+          - GET
+          - POST
+          - OPTIONS
+        AllowHeaders:
+          - Authorization
+          - Content-Type
+      Auth:
+        DefaultAuthorizer: CognitoAuthorizer
+        Authorizers:
+          CognitoAuthorizer:
+            JwtConfiguration:
+              Audience:
+                - !Ref UserPoolClient
+              Issuer: !Sub https://cognito-idp.${AWS::Region}.amazonaws.com/${UserPool}
+            Identity:
+              ReauthorizeEvery: 0
+                      
+  #
+  # API Lambda - business logic: GET /items/random, GET /items/{id}/answer
+  #
+  ApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub flashcards-api
+      CodeUri: src/api/
+      Handler: app.lambda_handler
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:Query
+                - dynamodb:GetItem
+                - dynamodb:BatchGetItem
+              Resource:
+                - !GetAtt FlashcardsTable.Arn
+                - !Sub "${FlashcardsTable.Arn}/index/*"
+      Events:
+        GetItem:
+          Type: HttpApi
+          Properties:
+            Path: /items/random
+            Method: GET
+            ApiId: !Ref FlashcardsApi
+            Auth:
+              Authorizer: CognitoAuthorizer
+        QueryItems:
+          Type: HttpApi
+          Properties:
+            Path: /items/{id}/answer
+            Method: GET
+            ApiId: !Ref FlashcardsApi
+            Auth:
+              Authorizer: CognitoAuthorizer
