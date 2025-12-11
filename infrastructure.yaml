@@ -9,15 +9,15 @@ Resources:
       BillingMode: PAY_PER_REQUEST
 
       AttributeDefinitions:
-        - AttributeName: QuestionId
+        - AttributeName: id
           AttributeType: S
-        - AttributeName: RecordType
+        - AttributeName: type
           AttributeType: S
 
       KeySchema:
-        - AttributeName: QuestionId
+        - AttributeName: id
           KeyType: HASH
-        - AttributeName: RecordType
+        - AttributeName: type
           KeyType: RANGE
 
       SSESpecification:
