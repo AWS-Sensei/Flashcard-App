@@ -1,0 +1,24 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  FlashcardsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Flashcards
+      BillingMode: PAY_PER_REQUEST
+
+      AttributeDefinitions:
+        - AttributeName: QuestionId
+          AttributeType: S
+        - AttributeName: RecordType
+          AttributeType: S
+
+      KeySchema:
+        - AttributeName: QuestionId
+          KeyType: HASH
+        - AttributeName: RecordType
+          KeyType: RANGE
+
+      SSESpecification:
+        SSEEnabled: true
