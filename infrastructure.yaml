@@ -82,8 +82,7 @@ Resources:
               Audience:
                 - !Ref UserPoolClient
               Issuer: !Sub https://cognito-idp.${AWS::Region}.amazonaws.com/${UserPool}
-            Identity:
-              ReauthorizeEvery: 0
+            IdentitySource: "$request.header.Authorization"
                       
   #
   # API Lambda - business logic: GET /items/random, GET /items/{id}/answer
