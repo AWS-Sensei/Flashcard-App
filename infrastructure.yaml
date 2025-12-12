@@ -94,6 +94,9 @@ Resources:
       CodeUri: src/api/
       Handler: app.lambda_handler
       Runtime: python3.14
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref FlashcardsTable
       Policies:
         - Version: "2012-10-17"
           Statement:
