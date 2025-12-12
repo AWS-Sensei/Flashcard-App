@@ -1,7 +1,7 @@
 ---
 id: 87636941-484e-4c59-ae14-02aa007bbe81
 career: developer associate
-language: en
+locale: en
 subject: Development with AWS Services
 ---
 

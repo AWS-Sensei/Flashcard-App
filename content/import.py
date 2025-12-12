@@ -37,27 +37,27 @@ def parse_markdown(file_path):
 
 def write_to_dynamo(metadata, question, answer):
     item_id = metadata["id"]
-    language = metadata["language"].lower()
+    locale = metadata["locale"].lower()
 
     pk = item_id
 
     # QUESTION item
     table.put_item(Item={
         "id": pk,
-        "card_type": f"QUESTION#{language.upper()}",
+        "card_type": f"QUESTION#{locale.upper()}",
         "career": metadata.get("career"),
         "subject": metadata.get("subject"),
-        "language": language,
+        "locale": locale,
         "content": question
     })
 
     # ANSWER item
     table.put_item(Item={
         "id": pk,
-        "card_type": f"ANSWER#{language.upper()}",
+        "card_type": f"ANSWER#{locale.upper()}",
         "career": metadata.get("career"),
         "subject": metadata.get("subject"),
-        "language": language,
+        "locale": locale,
         "content": answer
     })
 
