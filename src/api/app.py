@@ -18,7 +18,7 @@ def lambda_handler(event, context):
     if event["rawPath"] == "/items/random" and method == "GET":
         # Step 1: Scan GSI1 for items of card_type question
         resp = table.scan(
-            FilterExpression=Attr("card_type").eq("question"),
+            FilterExpression=Attr("card_type").eq("question#en"),
             ProjectionExpression="id, card_type, career, subject, locale"
         )
         items = resp.get("Items", [])

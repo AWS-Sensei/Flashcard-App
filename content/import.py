@@ -44,7 +44,7 @@ def write_to_dynamo(metadata, question, answer):
     # QUESTION item
     table.put_item(Item={
         "id": pk,
-        "card_type": f"QUESTION#{locale.upper()}",
+        "card_type": f"question#{locale}",
         "career": metadata.get("career"),
         "subject": metadata.get("subject"),
         "locale": locale,
@@ -54,7 +54,7 @@ def write_to_dynamo(metadata, question, answer):
     # ANSWER item
     table.put_item(Item={
         "id": pk,
-        "card_type": f"ANSWER#{locale.upper()}",
+        "card_type": f"answer#{locale}",
         "career": metadata.get("career"),
         "subject": metadata.get("subject"),
         "locale": locale,
