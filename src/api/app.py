@@ -16,10 +16,10 @@ def lambda_handler(event, context):
     # 1) RANDOM QUESTION
     # --------------------------------------------
     if event["rawPath"] == "/items/random" and method == "GET":
-        # Step 1: Scan GSI1 for items of type question
+        # Step 1: Scan GSI1 for items of card_type question
         resp = table.scan(
-            FilterExpression=Attr("type").eq("question"),
-            ProjectionExpression="id, type, career, domain, language"
+            FilterExpression=Attr("card_type").eq("question"),
+            ProjectionExpression="id, card_type, career, domain, language"
         )
         items = resp.get("Items", [])
         if not items:
@@ -29,7 +29,7 @@ def lambda_handler(event, context):
         item = random.choice(items)
 
         # Step 3: Fetch full question item via pk+sk
-        resp2 = table.get_item(Key={"id": item["id"], "type": item["type"]})
+        resp2 = table.get_item(Key={"id": item["id"], "card_type": item["card_type"]})
         full = resp2.get("Item", {})
 
         # Return only the QUESTION
@@ -50,7 +50,7 @@ def lambda_handler(event, context):
     if "id" in path_params and method == "GET" and event["rawPath"].endswith("/answer"):
         pk = path_params["id"]
         answer_sk = f"answer#en"  # or detect via query parameter
-        resp = table.get_item(Key={"id": pk, "type": answer_sk})
+        resp = table.get_item(Key={"id": pk, "card_type": answer_sk})
         item = resp.get("Item")
         if not item:
             return {"statusCode": 404, "body": "No answer found"}

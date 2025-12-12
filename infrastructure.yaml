@@ -14,13 +14,13 @@ Resources:
       AttributeDefinitions:
         - AttributeName: id
           AttributeType: S
-        - AttributeName: type
+        - AttributeName: card_type
           AttributeType: S
 
       KeySchema:
         - AttributeName: id
           KeyType: HASH
-        - AttributeName: type
+        - AttributeName: card_type
           KeyType: RANGE
 
       SSESpecification:
