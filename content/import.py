@@ -44,9 +44,9 @@ def write_to_dynamo(metadata, question, answer):
     # QUESTION item
     table.put_item(Item={
         "id": pk,
-        "type": f"QUESTION#{language.upper()}",
+        "card_type": f"QUESTION#{language.upper()}",
         "career": metadata.get("career"),
-        "domain": metadata.get("domain"),
+        "subject": metadata.get("subject"),
         "language": language,
         "content": question
     })
@@ -54,9 +54,9 @@ def write_to_dynamo(metadata, question, answer):
     # ANSWER item
     table.put_item(Item={
         "id": pk,
-        "type": f"ANSWER#{language.upper()}",
+        "card_type": f"ANSWER#{language.upper()}",
         "career": metadata.get("career"),
-        "domain": metadata.get("domain"),
+        "subject": metadata.get("subject"),
         "language": language,
         "content": answer
     })

@@ -19,7 +19,7 @@ def lambda_handler(event, context):
         # Step 1: Scan GSI1 for items of card_type question
         resp = table.scan(
             FilterExpression=Attr("card_type").eq("question"),
-            ProjectionExpression="id, card_type, career, domain, language"
+            ProjectionExpression="id, card_type, career, subject, language"
         )
         items = resp.get("Items", [])
         if not items:
@@ -39,7 +39,7 @@ def lambda_handler(event, context):
                 "id": full["id"],
                 "language": full["language"],
                 "career": full.get("career"),
-                "domain": full.get("domain"),
+                "subject": full.get("subject"),
                 "question": full["content"]
             })
         }
@@ -61,7 +61,7 @@ def lambda_handler(event, context):
                 "id": pk,
                 "language": item["language"],
                 "career": item.get("career"),
-                "domain": item.get("domain"),
+                "subject": item.get("subject"),
                 "answer": item["content"]
             })
         }
