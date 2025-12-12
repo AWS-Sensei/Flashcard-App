@@ -93,6 +93,7 @@ Resources:
       FunctionName: !Sub flashcards-api
       CodeUri: src/api/
       Handler: app.lambda_handler
+      Runtime: python3.14
       Policies:
         - Version: "2012-10-17"
           Statement:
