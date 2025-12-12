@@ -105,6 +105,7 @@ Resources:
                 - dynamodb:Query
                 - dynamodb:GetItem
                 - dynamodb:BatchGetItem
+                - dynamodb:Scan
               Resource:
                 - !GetAtt FlashcardsTable.Arn
                 - !Sub "${FlashcardsTable.Arn}/index/*"
