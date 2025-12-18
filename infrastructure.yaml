@@ -12,7 +12,7 @@ Parameters:
   CertificateArn:
     Type: String
     Description: ACM certificate ARN for the domain (must be in us-east-1)
-    Default: arn:aws:acm:us-east-1:804711834430:certificate/8c70eab8-1e9f-489e-b0ac-35c19bd85667
+    Default: arn:aws:acm:us-east-1:804711834430:certificate/6ac27f6a-b570-4111-8687-1c6113bd1f49
 
 Resources:
   #
