@@ -1,0 +1,27 @@
+version: 0.2
+
+env:
+  variables:
+    FLUTTER_VERSION: "0.124.1"
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 20
+    commands:
+      - apt-get update
+      - apt-get install -y curl git unzip xz-utils
+      - git clone https://github.com/flutter/flutter.git -b $FLUTTER_VERSION /opt/flutter
+      - export PATH="$PATH:/opt/flutter/bin"
+      - flutter doctor
+  build:
+    commands:
+      - echo "Build Flutter Website..."
+      - cd src/app
+      - flutter build web
+  post_build:
+    commands:
+      - echo "Deploying to $WEBSITE_BUCKET..."
+      - aws s3 sync build/web s3://flashcards.aws-sensei.cloud --delete
+      - echo "Invalidating CloudFront cache..."
+      - aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths "/*"
