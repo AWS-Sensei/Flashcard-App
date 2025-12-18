@@ -1,24 +1,23 @@
 import 'package:flutter/material.dart';
 
+import 'ui/screens/login_screen.dart';
+import 'ui/screens/home_screen.dart';
+import 'ui/widgets/protected_route.dart';
+import 'state/auth_state.dart';
+import 'themes/dark_mode.dart';
+import 'themes/light_mode.dart';
+import 'config/app_config.dart';
+
 void main() {
-  runApp(const FlashcardsApp());
-}
-
-class FlashcardsApp extends StatelessWidget {
-  const FlashcardsApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        body: Center(
-          child: Text(
-            'Hello Flashcards 👋',
-            style: TextStyle(fontSize: 32),
-          ),
-        ),
-      ),
-    );
-  }
+  runApp(
+    MaterialApp(
+      title: 'Flashcards',
+      theme: darkMode,
+      routes: {
+        '/': (_) => HomeScreen(),
+        '/login': (_) => LoginScreen(),
+      },
+      initialRoute:
+          AuthState.isAuthenticated() ? '/' : '/login'
+    ));
 }
