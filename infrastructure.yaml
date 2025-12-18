@@ -238,3 +238,13 @@ Outputs:
     Value: !Ref CloudFrontDistribution
     Export:
       Name: FlashcardWebAppCloudFrontDistribution
+  CognitoUserPoolClientId:
+    Description: Cognito User Pool Client ID
+    Value: !Ref UserPoolClient
+    Export:
+      Name: FlashcardsCognitoUserPoolClientId
+  CognitoUserPoolAWSRegion:
+    Description: AWS Region where the Cognito is deployed
+    Value: !Ref AWS::Region   
+    Export:
+      Name: FlashcardsCognitoAWSRegion

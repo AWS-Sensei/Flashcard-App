@@ -16,7 +16,7 @@ phases:
     commands:
       - echo "Build Flutter Website..."
       - cd src/app
-      - flutter build web
+      - flutter build web --dart-define=COGNITO_REGION=$COGNITO_REGION --dart-define=COGNITO_CLIENT_ID=$COGNITO_CLIENT_ID
   post_build:
     commands:
       - echo "Deploying to $WEBSITE_BUCKET..."
