@@ -9,8 +9,6 @@ phases:
     runtime-versions:
       nodejs: 20
     commands:
-      - apt-get update
-      - apt-get install -y curl git unzip xz-utils
       - git clone https://github.com/flutter/flutter.git -b $FLUTTER_VERSION /opt/flutter
       - export PATH="$PATH:/opt/flutter/bin"
       - flutter doctor
@@ -22,6 +20,6 @@ phases:
   post_build:
     commands:
       - echo "Deploying to $WEBSITE_BUCKET..."
-      - aws s3 sync build/web s3://flashcards.aws-sensei.cloud --delete
+      - aws s3 sync build/web s3://$WEBSITE_BUCKET --delete
       - echo "Invalidating CloudFront cache..."
       - aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths "/*"
