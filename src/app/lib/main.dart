@@ -1,0 +1,24 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const FlashcardsApp());
+}
+
+class FlashcardsApp extends StatelessWidget {
+  const FlashcardsApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        body: Center(
+          child: Text(
+            'Hello Flashcards 👋',
+            style: TextStyle(fontSize: 32),
+          ),
+        ),
+      ),
+    );
+  }
+}
