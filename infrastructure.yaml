@@ -236,4 +236,4 @@ Outputs:
     Description: "CloudFrontDistribution for Hugo site"
     Value: !Ref CloudFrontDistribution
     Export:
-      Name: FlashcardWebAppBCloudFrontDistribution
+      Name: FlashcardWebAppCloudFrontDistribution
