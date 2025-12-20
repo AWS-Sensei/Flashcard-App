@@ -9,8 +9,9 @@ phases:
     runtime-versions:
       nodejs: 20
     commands:
-      - git clone https://github.com/flutter/flutter.git -b $FLUTTER_VERSION /opt/flutter
-      - export PATH="$PATH:/opt/flutter/bin"
+      - export FLUTTER_DIR="$HOME/flutter"
+      - git clone https://github.com/flutter/flutter.git --depth 1 --branch $FLUTTER_VERSION $FLUTTER_DIR
+      - export PATH="$PATH:$FLUTTER_DIR/bin"
       - flutter doctor
   build:
     commands:
