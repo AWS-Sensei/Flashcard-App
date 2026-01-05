@@ -88,6 +88,10 @@ Resources:
         AllowHeaders:
           - Authorization
           - Content-Type
+          - X-Amz-Date
+          - X-Api-Key
+          - X-Amz-Security-Token
+          - X-Amz-User-Agent
       Auth:
         DefaultAuthorizer: CognitoAuthorizer
         Authorizers:
