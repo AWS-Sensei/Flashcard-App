@@ -1,10 +1,4 @@
-const _cognitoRegion = String.fromEnvironment('COGNITO_REGION');
-const _cognitoUserPoolId = String.fromEnvironment('COGNITO_USER_POOL_ID');
-const _cognitoAppClientId = String.fromEnvironment('COGNITO_APP_CLIENT_ID');
-const _apiEndpoint = String.fromEnvironment('FLASHCARDS_API_ENDPOINT');
-const _apiRegion = String.fromEnvironment('FLASHCARDS_API_REGION');
-
-String get amplifyconfig => '''
+const amplifyconfig = r'''
 {
   "UserAgent": "aws-amplify-cli/2.0",
   "Version": "1.0",
@@ -15,9 +9,9 @@ String get amplifyconfig => '''
         "Version": "0.1.0",
         "CognitoUserPool": {
           "Default": {
-            "PoolId": "$_cognitoUserPoolId",
-            "AppClientId": "$_cognitoAppClientId",
-            "Region": "$_cognitoRegion"
+            "PoolId": "${COGNITO_USER_POOL_ID}",
+            "AppClientId": "${COGNITO_APP_CLIENT_ID}",
+            "Region": "${COGNITO_REGION}"
           }
         },
         "Auth": {
@@ -33,8 +27,8 @@ String get amplifyconfig => '''
       "awsAPIPlugin": {
         "flashcardsApi": {
           "endpointType": "REST",
-          "endpoint": "$_apiEndpoint",
-          "region": "$_apiRegion",
+          "endpoint": "${FLASHCARDS_API_ENDPOINT}",
+          "region": "${FLASHCARDS_API_REGION}",
           "authorizationType": "AMAZON_COGNITO_USER_POOLS"
         }
       }

@@ -238,6 +238,11 @@ Outputs:
     Value: !Ref CloudFrontDistribution
     Export:
       Name: FlashcardWebAppCloudFrontDistribution
+  CognitoUserPoolId:
+    Description: Cognito User Pool ID
+    Value: !Ref UserPool
+    Export:
+      Name: FlashcardsCognitoUserPoolId
   CognitoUserPoolClientId:
     Description: Cognito User Pool Client ID
     Value: !Ref UserPoolClient
@@ -248,3 +253,13 @@ Outputs:
     Value: !Ref AWS::Region   
     Export:
       Name: FlashcardsCognitoAWSRegion
+  FlashcardsApiEndpoint:
+    Description: API Gateway base URL for Flashcards API
+    Value: !Sub https://${FlashcardsApi}.execute-api.${AWS::Region}.amazonaws.com
+    Export:
+      Name: FlashcardsApiEndpoint
+  FlashcardsApiRegion:
+    Description: AWS Region for Flashcards API
+    Value: !Ref AWS::Region
+    Export:
+      Name: FlashcardsApiRegion
