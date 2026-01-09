@@ -3,6 +3,7 @@ import boto3
 import yaml
 import markdown
 from pathlib import Path
+import argparse
 
 dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table("Flashcards")
@@ -67,6 +68,17 @@ def import_folder(path):
         write_to_dynamo(metadata, question, answer)
         print(f"Imported: {md_file.name}")
 
+def parse_args():
+    parser = argparse.ArgumentParser(description="Import flashcards into DynamoDB")
+    parser.add_argument(
+        "path",
+        nargs="?",
+        default="./questions",
+        help="Folder containing Markdown files (default: ./questions)",
+    )
+    return parser.parse_args()
+
 if __name__ == "__main__":
-    import_folder("./questions")   # folder with MD files
+    args = parse_args()
+    import_folder(args.path)
     
