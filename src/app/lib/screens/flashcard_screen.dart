@@ -141,38 +141,39 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
                   duration: const Duration(milliseconds: 350),
                   switchInCurve: Curves.easeOut,
                   switchOutCurve: Curves.easeIn,
-                  child: Card(
-                    key: ValueKey(question?.id ?? 'empty'),
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (question != null)
-                            Wrap(
-                              spacing: 8,
-                              runSpacing: 8,
+                  child: question == null
+                      ? const SizedBox.shrink()
+                      : Card(
+                          key: ValueKey(question.id),
+                          child: Padding(
+                            padding: const EdgeInsets.all(20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                MetaChip(label: question.locale),
-                                if (question.career != null)
-                                  MetaChip(label: question.career!),
-                                if (question.subject != null)
-                                  MetaChip(label: question.subject!),
+                                Wrap(
+                                  spacing: 8,
+                                  runSpacing: 8,
+                                  children: [
+                                    if (question.career != null)
+                                      MetaChip(
+                                          label: 'Career: ${question.career!}'),
+                                    if (question.subject != null)
+                                      MetaChip(
+                                          label: 'Subject: ${question.subject!}'),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                Text(
+                                  question.question,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleLarge
+                                      ?.copyWith(height: 1.4),
+                                ),
                               ],
                             ),
-                          if (question != null) const SizedBox(height: 12),
-                          Text(
-                            question?.question ??
-                                'Press "Random card" to begin.',
-                            style:
-                                Theme.of(context).textTheme.titleLarge?.copyWith(
-                                      height: 1.4,
-                                    ),
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
+                        ),
                 ),
                 const SizedBox(height: 12),
                 if (answer != null)
@@ -190,11 +191,11 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
                               spacing: 8,
                               runSpacing: 8,
                               children: [
-                                MetaChip(label: answer.locale),
                                 if (answer.career != null)
-                                  MetaChip(label: answer.career!),
+                                  MetaChip(label: 'Career: ${answer.career!}'),
                                 if (answer.subject != null)
-                                  MetaChip(label: answer.subject!),
+                                  MetaChip(
+                                      label: 'Subject: ${answer.subject!}'),
                               ],
                             ),
                             const SizedBox(height: 12),
