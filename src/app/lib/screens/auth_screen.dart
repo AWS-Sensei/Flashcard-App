@@ -5,9 +5,14 @@ import 'package:flutter/material.dart';
 import '../widgets/app_scaffold.dart';
 
 class AuthScreen extends StatefulWidget {
-  const AuthScreen({super.key, required this.onSignedIn});
+  const AuthScreen({
+    super.key,
+    required this.onSignedIn,
+    required this.onToggleTheme,
+  });
 
   final VoidCallback onSignedIn;
+  final void Function(Brightness brightness) onToggleTheme;
 
   @override
   State<AuthScreen> createState() => _AuthScreenState();
@@ -55,6 +60,19 @@ class _AuthScreenState extends State<AuthScreen> {
     return AppScaffold(
       appBar: AppBar(
         title: const Text('Sign in'),
+        actions: [
+          IconButton(
+            tooltip: 'Toggle theme',
+            onPressed: () => widget.onToggleTheme(
+              Theme.of(context).brightness,
+            ),
+            icon: Icon(
+              Theme.of(context).brightness == Brightness.dark
+                  ? Icons.light_mode
+                  : Icons.dark_mode,
+            ),
+          ),
+        ],
       ),
       body: Center(
         child: ConstrainedBox(

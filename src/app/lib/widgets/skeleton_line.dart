@@ -7,6 +7,7 @@ class SkeletonLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Align(
       alignment: Alignment.centerLeft,
       child: FractionallySizedBox(
@@ -14,7 +15,7 @@ class SkeletonLine extends StatelessWidget {
         child: Container(
           height: 10,
           decoration: BoxDecoration(
-            color: const Color(0xFFD9CFC0),
+            color: colorScheme.surfaceVariant,
             borderRadius: BorderRadius.circular(999),
           ),
         ),

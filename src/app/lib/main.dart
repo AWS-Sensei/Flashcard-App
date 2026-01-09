@@ -26,6 +26,7 @@ class _FlashcardsAppState extends State<FlashcardsApp> {
   bool _isCheckingSession = true;
   bool _isSignedIn = false;
   String? _errorMessage;
+  ThemeMode _themeMode = ThemeMode.system;
 
   @override
   void initState() {
@@ -75,11 +76,26 @@ class _FlashcardsAppState extends State<FlashcardsApp> {
     setState(() => _isSignedIn = false);
   }
 
+  void _toggleTheme(Brightness brightness) {
+    setState(() {
+      if (_themeMode == ThemeMode.light) {
+        _themeMode = ThemeMode.dark;
+      } else if (_themeMode == ThemeMode.dark) {
+        _themeMode = ThemeMode.light;
+      } else {
+        _themeMode =
+            brightness == Brightness.dark ? ThemeMode.light : ThemeMode.dark;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flashcards',
       theme: buildAppTheme(),
+      darkTheme: buildDarkAppTheme(),
+      themeMode: _themeMode,
       home: _buildHome(),
     );
   }
@@ -92,8 +108,14 @@ class _FlashcardsAppState extends State<FlashcardsApp> {
       return const LoadingScreen();
     }
     if (_isSignedIn) {
-      return FlashcardScreen(onSignedOut: _handleSignedOut);
+      return FlashcardScreen(
+        onSignedOut: _handleSignedOut,
+        onToggleTheme: _toggleTheme,
+      );
     }
-    return AuthScreen(onSignedIn: _handleSignedIn);
+    return AuthScreen(
+      onSignedIn: _handleSignedIn,
+      onToggleTheme: _toggleTheme,
+    );
   }
 }

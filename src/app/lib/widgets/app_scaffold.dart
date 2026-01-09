@@ -27,71 +27,22 @@ class _AtmosphereBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final topTone = colorScheme.surfaceVariant;
+    final bottomTone = colorScheme.background;
+
     return Stack(
       children: [
         Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [
-                Color(0xFFF6F1E8),
-                Color(0xFFE9E1D5),
-              ],
+              colors: [topTone, bottomTone],
             ),
           ),
         ),
-        Positioned(
-          right: -80,
-          top: 60,
-          child: _Halo(
-            diameter: 220,
-            color: const Color(0xFFF4A261).withOpacity(0.25),
-          ),
-        ),
-        Positioned(
-          left: -40,
-          bottom: 80,
-          child: _Halo(
-            diameter: 180,
-            color: const Color(0xFF2A9D8F).withOpacity(0.18),
-          ),
-        ),
-        Positioned(
-          right: 40,
-          bottom: -30,
-          child: _Halo(
-            diameter: 140,
-            color: const Color(0xFFE76F51).withOpacity(0.22),
-          ),
-        ),
       ],
-    );
-  }
-}
-
-class _Halo extends StatelessWidget {
-  const _Halo({required this.diameter, required this.color});
-
-  final double diameter;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: diameter,
-      height: diameter,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: color,
-        boxShadow: [
-          BoxShadow(
-            color: color.withOpacity(0.4),
-            blurRadius: 60,
-            spreadRadius: 20,
-          ),
-        ],
-      ),
     );
   }
 }

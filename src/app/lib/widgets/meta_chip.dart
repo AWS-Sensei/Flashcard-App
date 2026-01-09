@@ -16,6 +16,7 @@ class MetaChip extends StatelessWidget {
       child: Text(
         label,
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: Theme.of(context).colorScheme.onSecondaryContainer,
               letterSpacing: 0.4,
               fontWeight: FontWeight.w600,
             ),

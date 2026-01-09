@@ -11,9 +11,14 @@ import '../widgets/meta_chip.dart';
 import '../widgets/skeleton_line.dart';
 
 class FlashcardScreen extends StatefulWidget {
-  const FlashcardScreen({super.key, required this.onSignedOut});
+  const FlashcardScreen({
+    super.key,
+    required this.onSignedOut,
+    required this.onToggleTheme,
+  });
 
   final VoidCallback onSignedOut;
+  final void Function(Brightness brightness) onToggleTheme;
 
   @override
   State<FlashcardScreen> createState() => _FlashcardScreenState();
@@ -141,134 +146,145 @@ class _FlashcardScreenState extends State<FlashcardScreen>
       appBar: AppBar(
         title: const Text('Flashcards'),
         actions: [
+          IconButton(
+            tooltip: 'Toggle theme',
+            onPressed: () => widget.onToggleTheme(
+              Theme.of(context).brightness,
+            ),
+            icon: Icon(
+              Theme.of(context).brightness == Brightness.dark
+                  ? Icons.light_mode
+                  : Icons.dark_mode,
+            ),
+          ),
           TextButton(
             onPressed: _signOut,
             child: const Text('Sign out'),
           ),
         ],
       ),
-      body: Center(
+      body: Align(
+        alignment: Alignment.topCenter,
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 680),
-          child: Padding(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Daily flashcard',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                    ),
-                    IconButton(
-                      onPressed: _isLoading ? null : _fetchRandomQuestion,
-                      icon: const Icon(Icons.refresh),
-                      tooltip: 'Next card',
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                const SizedBox(height: 20),
-                if (_errorMessage != null)
-                  Text(
-                    _errorMessage!,
-                    style: TextStyle(color: Theme.of(context).colorScheme.error),
-                  ),
-                if (question != null)
-                  MouseRegion(
-                    cursor: _isLoading
-                        ? SystemMouseCursors.basic
-                        : SystemMouseCursors.click,
-                    child: GestureDetector(
-                      onTap: _isLoading ? null : _toggleAnswer,
-                      child: AnimatedBuilder(
-                        animation: _flipController,
-                        builder: (context, child) {
-                          final rotation = _flipController.value * pi;
-                          final isBack = rotation > (pi / 2);
-                          final displayAnswer = showAnswer && answer != null;
-                          final faceCareer = isBack
-                              ? answer?.career
-                              : question.career;
-                          final faceSubject = isBack
-                              ? answer?.subject
-                              : question.subject;
-                          final faceText = isBack
-                              ? (displayAnswer
-                                  ? answer.answer
-                                  : 'Loading answer...')
-                              : question.question;
-                          final cardContent = Padding(
-                            padding: const EdgeInsets.all(20),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Wrap(
-                                  spacing: 8,
-                                  runSpacing: 8,
-                                  children: [
-                                    if (faceCareer != null)
-                                      MetaChip(
-                                        label: 'Career: $faceCareer',
-                                      ),
-                                    if (faceSubject != null)
-                                      MetaChip(
-                                        label: 'Subject: $faceSubject',
-                                      ),
-                                  ],
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Daily flashcard',
+                        style:
+                            Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                  fontWeight: FontWeight.w600,
                                 ),
-                                const SizedBox(height: 12),
-                                Text(
-                                  faceText,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleLarge
-                                      ?.copyWith(height: 1.4),
-                                ),
-                              ],
-                            ),
-                          );
-
-                          return Transform(
-                            alignment: Alignment.center,
-                            transform: Matrix4.identity()
-                              ..setEntry(3, 2, 0.001)
-                              ..rotateY(rotation),
-                            child: Card(
-                              color: isBack
-                                  ? Theme.of(context)
-                                      .colorScheme
-                                      .primaryContainer
-                                  : null,
-                              child: isBack
-                                  ? Transform(
-                                      alignment: Alignment.center,
-                                      transform:
-                                          Matrix4.rotationY(pi),
-                                      child: cardContent,
-                                    )
-                                  : cardContent,
-                            ),
-                          );
-                        },
                       ),
+                      IconButton(
+                        onPressed: _isLoading ? null : _fetchRandomQuestion,
+                        icon: const Icon(Icons.refresh),
+                        tooltip: 'Next card',
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  const SizedBox(height: 20),
+                  if (_errorMessage != null)
+                    Text(
+                      _errorMessage!,
+                      style:
+                          TextStyle(color: Theme.of(context).colorScheme.error),
                     ),
-                  )
-                else
-                  const SizedBox.shrink(),
-                const SizedBox(height: 12),
-                const SizedBox(height: 20),
-                const SizedBox(height: 8),
-                if (_isLoading) ...[
-                  const SizedBox(height: 16),
-                  const SkeletonLine(widthFactor: 0.7),
+                  if (question != null)
+                    MouseRegion(
+                      cursor: _isLoading
+                          ? SystemMouseCursors.basic
+                          : SystemMouseCursors.click,
+                      child: GestureDetector(
+                        onTap: _isLoading ? null : _toggleAnswer,
+                        child: AnimatedBuilder(
+                          animation: _flipController,
+                          builder: (context, child) {
+                            final rotation = _flipController.value * pi;
+                            final isBack = rotation > (pi / 2);
+                            final displayAnswer = showAnswer && answer != null;
+                            final faceCareer =
+                                isBack ? answer?.career : question.career;
+                            final faceSubject =
+                                isBack ? answer?.subject : question.subject;
+                            final faceText = isBack
+                                ? (displayAnswer
+                                    ? answer.answer
+                                    : 'Loading answer...')
+                                : question.question;
+                            final cardContent = Padding(
+                              padding: const EdgeInsets.all(20),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Wrap(
+                                    spacing: 8,
+                                    runSpacing: 8,
+                                    children: [
+                                      if (faceCareer != null)
+                                        MetaChip(
+                                          label: 'Career: $faceCareer',
+                                        ),
+                                      if (faceSubject != null)
+                                        MetaChip(
+                                          label: 'Subject: $faceSubject',
+                                        ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    faceText,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleLarge
+                                        ?.copyWith(height: 1.4),
+                                  ),
+                                ],
+                              ),
+                            );
+
+                            return Transform(
+                              alignment: Alignment.center,
+                              transform: Matrix4.identity()
+                                ..setEntry(3, 2, 0.001)
+                                ..rotateY(rotation),
+                              child: Card(
+                                color: isBack
+                                    ? Theme.of(context)
+                                        .colorScheme
+                                        .primaryContainer
+                                    : null,
+                                child: isBack
+                                    ? Transform(
+                                        alignment: Alignment.center,
+                                        transform: Matrix4.rotationY(pi),
+                                        child: cardContent,
+                                      )
+                                    : cardContent,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    )
+                  else
+                    const SizedBox.shrink(),
+                  const SizedBox(height: 12),
+                  const SizedBox(height: 20),
                   const SizedBox(height: 8),
-                  const SkeletonLine(widthFactor: 0.5),
-                ],
+                  if (_isLoading) ...[
+                    const SizedBox(height: 16),
+                    const SkeletonLine(widthFactor: 0.7),
+                    const SizedBox(height: 8),
+                    const SkeletonLine(widthFactor: 0.5),
+                  ],
               ],
             ),
           ),
