@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:amplify_api/amplify_api.dart';
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../models/flashcard.dart';
 import '../widgets/app_scaffold.dart';
@@ -129,6 +130,11 @@ class _FlashcardScreenState extends State<FlashcardScreen>
     }
   }
 
+  Future<void> _openBlog() async {
+    final uri = Uri.parse('https://aws-sensei.cloud');
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
+  }
+
   @override
   void dispose() {
     _flipController.dispose();
@@ -147,7 +153,12 @@ class _FlashcardScreenState extends State<FlashcardScreen>
         title: const Text('Flashcards'),
         actions: [
           IconButton(
-            tooltip: 'Toggle theme',
+            tooltip: 'AWS Sensei',
+            onPressed: _openBlog,
+            icon: const Icon(Icons.language),
+          ),
+          IconButton(
+            tooltip: 'Switch theme',
             onPressed: () => widget.onToggleTheme(
               Theme.of(context).brightness,
             ),

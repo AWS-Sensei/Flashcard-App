@@ -1,6 +1,7 @@
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../widgets/app_scaffold.dart';
 
@@ -55,6 +56,11 @@ class _AuthScreenState extends State<AuthScreen> {
     }
   }
 
+  Future<void> _openBlog() async {
+    final uri = Uri.parse('https://aws-sensei.cloud');
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
+  }
+
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
@@ -62,7 +68,12 @@ class _AuthScreenState extends State<AuthScreen> {
         title: const Text('Sign in'),
         actions: [
           IconButton(
-            tooltip: 'Toggle theme',
+            tooltip: 'AWS Sensei',
+            onPressed: _openBlog,
+            icon: const Icon(Icons.language),
+          ),
+          IconButton(
+            tooltip: 'Switch theme',
             onPressed: () => widget.onToggleTheme(
               Theme.of(context).brightness,
             ),
