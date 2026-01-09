@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:amplify_api/amplify_api.dart';
 import 'package:amplify_flutter/amplify_flutter.dart';
@@ -18,15 +19,22 @@ class FlashcardScreen extends StatefulWidget {
   State<FlashcardScreen> createState() => _FlashcardScreenState();
 }
 
-class _FlashcardScreenState extends State<FlashcardScreen> {
+class _FlashcardScreenState extends State<FlashcardScreen>
+    with SingleTickerProviderStateMixin {
   bool _isLoading = false;
   String? _errorMessage;
   FlashcardQuestion? _question;
   FlashcardAnswer? _answer;
+  bool _showAnswer = false;
+  late final AnimationController _flipController;
 
   @override
   void initState() {
     super.initState();
+    _flipController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 450),
+    );
     _fetchRandomQuestion();
   }
 
@@ -35,7 +43,9 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
       _isLoading = true;
       _errorMessage = null;
       _answer = null;
+      _showAnswer = false;
     });
+    _flipController.value = 0.0;
 
     try {
       final response = await Amplify.API.get(
@@ -77,7 +87,9 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
       final payload = jsonDecode(body);
       setState(() {
         _answer = FlashcardAnswer.fromJson(payload);
+        _showAnswer = true;
       });
+      _flipController.forward();
     } catch (error) {
       setState(() => _errorMessage = error.toString());
     } finally {
@@ -85,6 +97,22 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
         setState(() => _isLoading = false);
       }
     }
+  }
+
+  void _toggleAnswer() {
+    if (_showAnswer) {
+      setState(() => _showAnswer = false);
+      _flipController.reverse();
+      return;
+    }
+
+    if (_answer != null) {
+      setState(() => _showAnswer = true);
+      _flipController.forward();
+      return;
+    }
+
+    _fetchAnswer();
   }
 
   Future<void> _signOut() async {
@@ -97,10 +125,17 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
   }
 
   @override
+  void dispose() {
+    _flipController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final question = _question;
     final answer = _answer;
     final hasQuestion = question != null;
+    final showAnswer = _showAnswer && answer != null;
 
     return AppScaffold(
       appBar: AppBar(
@@ -120,32 +155,54 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(
-                  'Daily flashcard',
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Daily flashcard',
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                    ),
+                    IconButton(
+                      onPressed: _isLoading ? null : _fetchRandomQuestion,
+                      icon: const Icon(Icons.refresh),
+                      tooltip: 'Next card',
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 6),
-                Text(
-                  'Pull a random card, then reveal the answer when ready.',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
                 const SizedBox(height: 20),
                 if (_errorMessage != null)
                   Text(
                     _errorMessage!,
                     style: TextStyle(color: Theme.of(context).colorScheme.error),
                   ),
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 350),
-                  switchInCurve: Curves.easeOut,
-                  switchOutCurve: Curves.easeIn,
-                  child: question == null
-                      ? const SizedBox.shrink()
-                      : Card(
-                          key: ValueKey(question.id),
-                          child: Padding(
+                if (question != null)
+                  MouseRegion(
+                    cursor: _isLoading
+                        ? SystemMouseCursors.basic
+                        : SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTap: _isLoading ? null : _toggleAnswer,
+                      child: AnimatedBuilder(
+                        animation: _flipController,
+                        builder: (context, child) {
+                          final rotation = _flipController.value * pi;
+                          final isBack = rotation > (pi / 2);
+                          final displayAnswer = showAnswer && answer != null;
+                          final faceCareer = isBack
+                              ? answer?.career
+                              : question.career;
+                          final faceSubject = isBack
+                              ? answer?.subject
+                              : question.subject;
+                          final faceText = isBack
+                              ? (displayAnswer
+                                  ? answer.answer
+                                  : 'Loading answer...')
+                              : question.question;
+                          final cardContent = Padding(
                             padding: const EdgeInsets.all(20),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -154,17 +211,19 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
                                   spacing: 8,
                                   runSpacing: 8,
                                   children: [
-                                    if (question.career != null)
+                                    if (faceCareer != null)
                                       MetaChip(
-                                          label: 'Career: ${question.career!}'),
-                                    if (question.subject != null)
+                                        label: 'Career: $faceCareer',
+                                      ),
+                                    if (faceSubject != null)
                                       MetaChip(
-                                          label: 'Subject: ${question.subject!}'),
+                                        label: 'Subject: $faceSubject',
+                                      ),
                                   ],
                                 ),
                                 const SizedBox(height: 12),
                                 Text(
-                                  question.question,
+                                  faceText,
                                   style: Theme.of(context)
                                       .textTheme
                                       .titleLarge
@@ -172,61 +231,38 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
                                 ),
                               ],
                             ),
-                          ),
-                        ),
-                ),
-                const SizedBox(height: 12),
-                if (answer != null)
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 350),
-                    child: Card(
-                      key: ValueKey(answer.id),
-                      color: Theme.of(context).colorScheme.primaryContainer,
-                      child: Padding(
-                        padding: const EdgeInsets.all(18),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Wrap(
-                              spacing: 8,
-                              runSpacing: 8,
-                              children: [
-                                if (answer.career != null)
-                                  MetaChip(label: 'Career: ${answer.career!}'),
-                                if (answer.subject != null)
-                                  MetaChip(
-                                      label: 'Subject: ${answer.subject!}'),
-                              ],
+                          );
+
+                          return Transform(
+                            alignment: Alignment.center,
+                            transform: Matrix4.identity()
+                              ..setEntry(3, 2, 0.001)
+                              ..rotateY(rotation),
+                            child: Card(
+                              color: isBack
+                                  ? Theme.of(context)
+                                      .colorScheme
+                                      .primaryContainer
+                                  : null,
+                              child: isBack
+                                  ? Transform(
+                                      alignment: Alignment.center,
+                                      transform:
+                                          Matrix4.rotationY(pi),
+                                      child: cardContent,
+                                    )
+                                  : cardContent,
                             ),
-                            const SizedBox(height: 12),
-                            Text(
-                              answer.answer,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
-                                  ?.copyWith(height: 1.4),
-                            ),
-                          ],
-                        ),
+                          );
+                        },
                       ),
                     ),
-                  ),
+                  )
+                else
+                  const SizedBox.shrink(),
+                const SizedBox(height: 12),
                 const SizedBox(height: 20),
-                Wrap(
-                  spacing: 12,
-                  runSpacing: 12,
-                  children: [
-                    ElevatedButton(
-                      onPressed: _isLoading ? null : _fetchRandomQuestion,
-                      child: Text(hasQuestion ? 'Next card' : 'Random card'),
-                    ),
-                    OutlinedButton(
-                      onPressed:
-                          _isLoading || !hasQuestion ? null : _fetchAnswer,
-                      child: const Text('Show answer'),
-                    ),
-                  ],
-                ),
+                const SizedBox(height: 8),
                 if (_isLoading) ...[
                   const SizedBox(height: 16),
                   const SkeletonLine(widthFactor: 0.7),
