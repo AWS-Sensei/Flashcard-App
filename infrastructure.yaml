@@ -31,8 +31,8 @@ Resources:
           AttributeType: S
         - AttributeName: career
           AttributeType: S
-        # - AttributeName: subject
-        #   AttributeType: S
+        - AttributeName: subject
+          AttributeType: S
         # - AttributeName: subject_career
         #   AttributeType: S
 
@@ -51,14 +51,14 @@ Resources:
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
-        # - IndexName: SubjectIndex
-        #   KeySchema:
-        #     - AttributeName: subject
-        #       KeyType: HASH
-        #     - AttributeName: card_type
-        #       KeyType: RANGE
-        #   Projection:
-        #     ProjectionType: ALL
+        - IndexName: SubjectIndex
+          KeySchema:
+            - AttributeName: subject
+              KeyType: HASH
+            - AttributeName: card_type
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
         # - IndexName: SubjectCareerIndex
         #   KeySchema:
         #     - AttributeName: subject_career
