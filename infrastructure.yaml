@@ -33,8 +33,8 @@ Resources:
           AttributeType: S
         - AttributeName: subject
           AttributeType: S
-        # - AttributeName: subject_career
-        #   AttributeType: S
+        - AttributeName: subject_career
+          AttributeType: S
 
       KeySchema:
         - AttributeName: id
@@ -59,14 +59,14 @@ Resources:
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
-        # - IndexName: SubjectCareerIndex
-        #   KeySchema:
-        #     - AttributeName: subject_career
-        #       KeyType: HASH
-        #     - AttributeName: card_type
-        #       KeyType: RANGE
-        #   Projection:
-        #     ProjectionType: ALL
+        - IndexName: SubjectCareerIndex
+          KeySchema:
+            - AttributeName: subject_career
+              KeyType: HASH
+            - AttributeName: card_type
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
 
       SSESpecification:
         SSEEnabled: true
