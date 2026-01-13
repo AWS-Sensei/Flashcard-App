@@ -5,10 +5,24 @@ locale: en
 subject: Development with AWS Services
 ---
 
+# flashcard
+
 ## question
+
 As an AWS Certified Developer Associate, you are given a document written in YAML that represents the architecture of a serverless application. The first line of the document contains `Transform: 'AWS::Serverless-2016-10-31'`.
 
 What does the `Transform` section in the document represent?
 
+## multiple choice
+
+It represents a Lambda function definition
+
+It represents an intrinsic function
+
+Presence of `Transform` section indicates it is a CloudFormation Parameter
+
+Presence of `Transform` section indicates it is a Serverless Application Model (SAM) template
+
 ## answer
+
 Presence of `Transform` section indicates it is a Serverless Application Model (SAM) template
