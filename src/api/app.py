@@ -16,11 +16,38 @@ def lambda_handler(event, context):
     # 1) RANDOM QUESTION
     # --------------------------------------------
     if event["rawPath"] == "/items/random" and method == "GET":
-        # Step 1: Scan GSI1 for items of card_type question
-        resp = table.scan(
-            FilterExpression=Attr("card_type").eq("question#en"),
-            ProjectionExpression="id, card_type, career, subject, locale"
-        )
+        subject = qs.get("subject")
+        career = qs.get("career")
+        question = "question#en"
+
+        if subject and career:
+            subject_career = f"subject#{subject}#career#{career}"
+            resp = table.query(
+                IndexName="SubjectCareerIndex",
+                KeyConditionExpression=Key("subject_career").eq(subject_career)
+                & Key("card_type").eq(question),
+                ProjectionExpression="id, card_type, career, subject, locale"
+            )
+        elif career:
+            resp = table.query(
+                IndexName="CareerIndex",
+                KeyConditionExpression=Key("career").eq(career)
+                & Key("card_type").eq(question),
+                ProjectionExpression="id, card_type, career, subject, locale"
+            )
+        elif subject:
+            resp = table.query(
+                IndexName="SubjectIndex",
+                KeyConditionExpression=Key("subject").eq(subject)
+                & Key("card_type").eq(question),
+                ProjectionExpression="id, card_type, career, subject, locale"
+            )
+        else:
+            resp = table.scan(
+                FilterExpression=Attr("card_type").eq(question),
+                ProjectionExpression="id, card_type, career, subject, locale"
+            )
+
         items = resp.get("Items", [])
         if not items:
             return {"statusCode": 404, "body": "No questions available"}
