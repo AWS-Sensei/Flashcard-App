@@ -29,12 +29,44 @@ Resources:
           AttributeType: S
         - AttributeName: card_type
           AttributeType: S
+        - AttributeName: subject
+          AttributeType: S
+        - AttributeName: career
+          AttributeType: S
+        - AttributeName: subject_career
+          AttributeType: S
 
       KeySchema:
         - AttributeName: id
           KeyType: HASH
         - AttributeName: card_type
           KeyType: RANGE
+
+      GlobalSecondaryIndexes:
+        - IndexName: SubjectCareerIndex
+          KeySchema:
+            - AttributeName: subject_career
+              KeyType: HASH
+            - AttributeName: card_type
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: CareerIndex
+          KeySchema:
+            - AttributeName: career
+              KeyType: HASH
+            - AttributeName: card_type
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: SubjectIndex
+          KeySchema:
+            - AttributeName: subject
+              KeyType: HASH
+            - AttributeName: card_type
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
 
       SSESpecification:
         SSEEnabled: true
