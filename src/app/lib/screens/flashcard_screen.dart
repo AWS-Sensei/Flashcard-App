@@ -162,6 +162,12 @@ class _FlashcardScreenState extends State<FlashcardScreen>
     await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
+  String _normalizeMarkdown(String text) {
+    return text
+        .replaceAll('[code]', '```\n')
+        .replaceAll('[/code]', '\n```');
+  }
+
   @override
   void dispose() {
     _flipController.dispose();
@@ -363,22 +369,30 @@ class _FlashcardScreenState extends State<FlashcardScreen>
                                     ? answer.answer
                                     : 'Loading answer...')
                                 : question.question;
+                            final faceMarkdown = _normalizeMarkdown(faceText);
                             final multipleChoice = question.multipleChoice;
                             final showMultipleChoice = isQuestionFace &&
                                 _showMultipleChoice &&
                                 multipleChoice != null &&
                                 multipleChoice.trim().isNotEmpty;
-                            final multipleChoiceLines = showMultipleChoice
-                                ? multipleChoice
+                            final multipleChoiceMarkdown = showMultipleChoice
+                                ? _normalizeMarkdown(multipleChoice)
+                                : null;
+                            final hasCodeBlock = multipleChoiceMarkdown != null &&
+                                multipleChoiceMarkdown.contains('```');
+                            final multipleChoiceLines = showMultipleChoice &&
+                                    !hasCodeBlock
+                                ? multipleChoiceMarkdown!
                                     .split('\n')
                                     .where((line) => line.trim().isNotEmpty)
                                     .toList()
                                 : const <String>[];
-                            final multipleChoiceMarkdown = showMultipleChoice
-                                ? multipleChoiceLines
-                                    .map((line) => '- $line')
-                                    .join('\n')
-                                : null;
+                            final multipleChoiceListMarkdown =
+                                showMultipleChoice && !hasCodeBlock
+                                    ? multipleChoiceLines
+                                        .map((line) => '- $line')
+                                        .join('\n')
+                                    : multipleChoiceMarkdown;
                             final questionMarkdownStyle =
                                 MarkdownStyleSheet.fromTheme(
                               Theme.of(context),
@@ -433,7 +447,7 @@ class _FlashcardScreenState extends State<FlashcardScreen>
                                   ),
                                   const SizedBox(height: 12),
                                   MarkdownBody(
-                                    data: faceText,
+                                    data: faceMarkdown,
                                     styleSheet: questionMarkdownStyle,
                                     onTapLink: (text, href, title) {
                                       if (href == null) {
@@ -457,9 +471,9 @@ class _FlashcardScreenState extends State<FlashcardScreen>
                                           ),
                                     ),
                                     const SizedBox(height: 8),
-                                    if (multipleChoiceMarkdown != null)
+                                    if (multipleChoiceListMarkdown != null)
                                       MarkdownBody(
-                                        data: multipleChoiceMarkdown,
+                                        data: multipleChoiceListMarkdown,
                                         styleSheet: choiceMarkdownStyle,
                                       ),
                                   ],
