@@ -51,22 +51,22 @@ Resources:
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
-        - IndexName: CareerIndex
-          KeySchema:
-            - AttributeName: career
-              KeyType: HASH
-            - AttributeName: card_type
-              KeyType: RANGE
-          Projection:
-            ProjectionType: ALL
-        - IndexName: SubjectIndex
-          KeySchema:
-            - AttributeName: subject
-              KeyType: HASH
-            - AttributeName: card_type
-              KeyType: RANGE
-          Projection:
-            ProjectionType: ALL
+        # - IndexName: CareerIndex
+        #   KeySchema:
+        #     - AttributeName: career
+        #       KeyType: HASH
+        #     - AttributeName: card_type
+        #       KeyType: RANGE
+        #   Projection:
+        #     ProjectionType: ALL
+        # - IndexName: SubjectIndex
+        #   KeySchema:
+        #     - AttributeName: subject
+        #       KeyType: HASH
+        #     - AttributeName: card_type
+        #       KeyType: RANGE
+        #   Projection:
+        #     ProjectionType: ALL
 
       SSESpecification:
         SSEEnabled: true
