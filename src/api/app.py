@@ -67,7 +67,8 @@ def lambda_handler(event, context):
                 "locale": full["locale"],
                 "career": full.get("career"),
                 "subject": full.get("subject"),
-                "question": full["content"]
+                "question": full["content"],
+                "multiple_choice": full.get("multiple_choice")
             })
         }
 
