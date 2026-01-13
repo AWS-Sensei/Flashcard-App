@@ -62,31 +62,44 @@ def write_to_dynamo(metadata, question, multiple_choice, answer, writer=None):
 
     item_id = metadata["id"]
     locale = metadata["locale"].lower()
+    subject = metadata.get("subject")
+    career = metadata.get("career")
+    subject_career = None
+    if subject and career:
+        subject_career = f"subject#{subject}#career#{career}"
 
     pk = item_id
 
     put_item = writer.put_item if writer is not None else table.put_item
 
     # QUESTION item
-    put_item(Item={
+    question_item = {
         "id": pk,
         "card_type": f"question#{locale}",
-        "career": metadata.get("career"),
-        "subject": metadata.get("subject"),
+        "career": career,
+        "subject": subject,
+        "subject_career": subject_career,
         "locale": locale,
         "content": question,
         "multiple_choice": multiple_choice
-    })
+    }
+    if subject_career is None:
+        question_item.pop("subject_career", None)
+    put_item(Item=question_item)
 
     # ANSWER item
-    put_item(Item={
+    answer_item = {
         "id": pk,
         "card_type": f"answer#{locale}",
-        "career": metadata.get("career"),
-        "subject": metadata.get("subject"),
+        "career": career,
+        "subject": subject,
+        "subject_career": subject_career,
         "locale": locale,
         "content": answer
-    })
+    }
+    if subject_career is None:
+        answer_item.pop("subject_career", None)
+    put_item(Item=answer_item)
 
 def import_folder(path):
     with table.batch_writer() as writer:
