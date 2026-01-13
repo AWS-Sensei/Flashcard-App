@@ -33,6 +33,9 @@ class _FlashcardScreenState extends State<FlashcardScreen>
   FlashcardAnswer? _answer;
   bool _showAnswer = false;
   late final AnimationController _flipController;
+  String? _selectedCareer;
+  String? _selectedSubject;
+  bool _showMultipleChoice = false;
 
   @override
   void initState() {
@@ -42,6 +45,17 @@ class _FlashcardScreenState extends State<FlashcardScreen>
       duration: const Duration(milliseconds: 450),
     );
     _fetchRandomQuestion();
+  }
+
+  Map<String, String> _buildQueryParameters() {
+    final params = <String, String>{};
+    if (_selectedSubject != null) {
+      params['subject'] = _selectedSubject!;
+    }
+    if (_selectedCareer != null) {
+      params['career'] = _selectedCareer!;
+    }
+    return params;
   }
 
   Future<void> _fetchRandomQuestion() async {
@@ -54,9 +68,11 @@ class _FlashcardScreenState extends State<FlashcardScreen>
     _flipController.value = 0.0;
 
     try {
+      final queryParameters = _buildQueryParameters();
       final response = await Amplify.API.get(
         '/items/random',
         apiName: 'flashcardsApi',
+        queryParameters: queryParameters.isEmpty ? null : queryParameters,
       ).response;
       final body = await response.body.transform(utf8.decoder).join();
       final payload = jsonDecode(body);
@@ -64,6 +80,16 @@ class _FlashcardScreenState extends State<FlashcardScreen>
         _question = FlashcardQuestion.fromJson(payload);
       });
     } catch (error) {
+      if (error is ApiException) {
+        final underlying = error.underlyingException?.toString() ?? '';
+        if (underlying.contains('404')) {
+          setState(() {
+            _question = null;
+            _errorMessage = 'No questions found for the selected filters.';
+          });
+          return;
+        }
+      }
       setState(() => _errorMessage = error.toString());
     } finally {
       if (mounted) {
@@ -183,10 +209,115 @@ class _FlashcardScreenState extends State<FlashcardScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
+                Text(
+                  'Filters',
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                ),
+                const SizedBox(height: 8),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final isNarrow = constraints.maxWidth < 520;
+                    return Wrap(
+                      spacing: 12,
+                      runSpacing: 12,
+                      children: [
+                        SizedBox(
+                          width: isNarrow
+                              ? double.infinity
+                              : (constraints.maxWidth - 24) / 2,
+                          child: DropdownButtonFormField<String>(
+                            value: _selectedCareer,
+                            decoration:
+                                const InputDecoration(labelText: 'Career'),
+                            items: const [
+                              DropdownMenuItem(
+                                value: 'Developer Associate',
+                                child: Text('Developer Associate'),
+                              ),
+                              DropdownMenuItem(
+                                value: 'Architect Associate',
+                                child: Text('Architect Associate'),
+                              ),
+                            ],
+                            onChanged: _isLoading
+                                ? null
+                                : (value) {
+                                    setState(() => _selectedCareer = value);
+                                  },
+                          ),
+                        ),
+                        SizedBox(
+                          width: isNarrow
+                              ? double.infinity
+                              : (constraints.maxWidth - 24) / 2,
+                          child: DropdownButtonFormField<String>(
+                            value: _selectedSubject,
+                            decoration:
+                                const InputDecoration(labelText: 'Subject'),
+                            items: const [
+                              DropdownMenuItem(
+                                value: 'Deployment',
+                                child: Text('Deployment'),
+                              ),
+                              DropdownMenuItem(
+                                value: 'Security',
+                                child: Text('Security'),
+                              ),
+                              DropdownMenuItem(
+                                value: 'Development with AWS Services',
+                                child: Text('Development with AWS Services'),
+                              ),
+                              DropdownMenuItem(
+                                value: 'Troubleshooting and Optimization',
+                                child: Text('Troubleshooting and Optimization'),
+                              ),
+                            ],
+                            onChanged: _isLoading
+                                ? null
+                                : (value) {
+                                    setState(() => _selectedSubject = value);
+                                  },
+                          ),
+                        ),
+                        SizedBox(
+                          width: isNarrow ? double.infinity : null,
+                          child: OutlinedButton(
+                            onPressed: _isLoading
+                                ? null
+                                : () {
+                                    setState(() {
+                                      _selectedSubject = null;
+                                      _selectedCareer = null;
+                                    });
+                                    _fetchRandomQuestion();
+                                  },
+                            child: const Text('Clear'),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+                CheckboxListTile(
+                  value: _showMultipleChoice,
+                  contentPadding: EdgeInsets.zero,
+                  controlAffinity: ListTileControlAffinity.leading,
+                  title: const Text('Show multiple choice'),
+                  onChanged: _isLoading
+                      ? null
+                      : (value) {
+                          setState(() {
+                            _showMultipleChoice = value ?? false;
+                          });
+                        },
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
                         'Daily flashcard',
                         style:
                             Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -225,11 +356,23 @@ class _FlashcardScreenState extends State<FlashcardScreen>
                                 isBack ? answer?.career : question.career;
                             final faceSubject =
                                 isBack ? answer?.subject : question.subject;
+                            final isQuestionFace = !isBack;
                             final faceText = isBack
                                 ? (displayAnswer
                                     ? answer.answer
                                     : 'Loading answer...')
                                 : question.question;
+                            final multipleChoice = question.multipleChoice;
+                            final showMultipleChoice = isQuestionFace &&
+                                _showMultipleChoice &&
+                                multipleChoice != null &&
+                                multipleChoice.trim().isNotEmpty;
+                            final multipleChoiceLines = showMultipleChoice
+                                ? multipleChoice
+                                    .split('\n')
+                                    .where((line) => line.trim().isNotEmpty)
+                                    .toList()
+                                : const <String>[];
                             final cardContent = Padding(
                               padding: const EdgeInsets.all(20),
                               child: Column(
@@ -257,6 +400,31 @@ class _FlashcardScreenState extends State<FlashcardScreen>
                                         .titleLarge
                                         ?.copyWith(height: 1.4),
                                   ),
+                                  if (showMultipleChoice) ...[
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      'Multiple choice',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleSmall
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    ...multipleChoiceLines.map(
+                                      (line) => Padding(
+                                        padding:
+                                            const EdgeInsets.only(bottom: 6),
+                                        child: Text(
+                                          '\u2022 $line',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ],
                               ),
                             );

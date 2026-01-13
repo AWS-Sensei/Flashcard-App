@@ -5,6 +5,7 @@ class FlashcardQuestion {
     required this.question,
     this.career,
     this.subject,
+    this.multipleChoice,
   });
 
   final String id;
@@ -12,6 +13,7 @@ class FlashcardQuestion {
   final String question;
   final String? career;
   final String? subject;
+  final String? multipleChoice;
 
   factory FlashcardQuestion.fromJson(Map<String, dynamic> json) {
     return FlashcardQuestion(
@@ -20,6 +22,7 @@ class FlashcardQuestion {
       question: json['question'] as String,
       career: json['career'] as String?,
       subject: json['subject'] as String?,
+      multipleChoice: json['multiple_choice'] as String?,
     );
   }
 }
