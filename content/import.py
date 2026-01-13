@@ -45,11 +45,11 @@ def parse_markdown(file_path):
             continue
 
         if current == "question":
-            question += line_stripped + "\n" if line_stripped else "\n"
+            question += f"{line}\n"
         elif current == "multiple choice":
-            multiple_choice += line_stripped + "\n" if line_stripped else "\n"
+            multiple_choice += f"{line}\n"
         elif current == "answer":
-            answer += line_stripped + "\n" if line_stripped else "\n"
+            answer += f"{line}\n"
 
     return metadata, question.strip(), multiple_choice.strip(), answer.strip()
 
