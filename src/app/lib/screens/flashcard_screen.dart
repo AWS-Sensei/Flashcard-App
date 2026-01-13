@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:amplify_api/amplify_api.dart';
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../models/flashcard.dart';
@@ -373,6 +374,44 @@ class _FlashcardScreenState extends State<FlashcardScreen>
                                     .where((line) => line.trim().isNotEmpty)
                                     .toList()
                                 : const <String>[];
+                            final multipleChoiceMarkdown = showMultipleChoice
+                                ? multipleChoiceLines
+                                    .map((line) => '- $line')
+                                    .join('\n')
+                                : null;
+                            final questionMarkdownStyle =
+                                MarkdownStyleSheet.fromTheme(
+                              Theme.of(context),
+                            ).copyWith(
+                              p: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge
+                                  ?.copyWith(height: 1.4),
+                              code: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge
+                                  ?.copyWith(
+                                    height: 1.4,
+                                    fontFamily: 'monospace',
+                                    backgroundColor: Theme.of(context)
+                                        .colorScheme
+                                        .surfaceVariant,
+                                  ),
+                            );
+                            final choiceMarkdownStyle =
+                                MarkdownStyleSheet.fromTheme(
+                              Theme.of(context),
+                            ).copyWith(
+                              code: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                    fontFamily: 'monospace',
+                                    backgroundColor: Theme.of(context)
+                                        .colorScheme
+                                        .surfaceVariant,
+                                  ),
+                            );
                             final cardContent = Padding(
                               padding: const EdgeInsets.all(20),
                               child: Column(
@@ -393,12 +432,18 @@ class _FlashcardScreenState extends State<FlashcardScreen>
                                     ],
                                   ),
                                   const SizedBox(height: 12),
-                                  Text(
-                                    faceText,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleLarge
-                                        ?.copyWith(height: 1.4),
+                                  MarkdownBody(
+                                    data: faceText,
+                                    styleSheet: questionMarkdownStyle,
+                                    onTapLink: (text, href, title) {
+                                      if (href == null) {
+                                        return;
+                                      }
+                                      launchUrl(
+                                        Uri.parse(href),
+                                        mode: LaunchMode.externalApplication,
+                                      );
+                                    },
                                   ),
                                   if (showMultipleChoice) ...[
                                     const SizedBox(height: 12),
@@ -412,18 +457,11 @@ class _FlashcardScreenState extends State<FlashcardScreen>
                                           ),
                                     ),
                                     const SizedBox(height: 8),
-                                    ...multipleChoiceLines.map(
-                                      (line) => Padding(
-                                        padding:
-                                            const EdgeInsets.only(bottom: 6),
-                                        child: Text(
-                                          '\u2022 $line',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodyMedium,
-                                        ),
+                                    if (multipleChoiceMarkdown != null)
+                                      MarkdownBody(
+                                        data: multipleChoiceMarkdown,
+                                        styleSheet: choiceMarkdownStyle,
                                       ),
-                                    ),
                                   ],
                                 ],
                               ),
