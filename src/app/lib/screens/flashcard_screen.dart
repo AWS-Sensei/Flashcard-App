@@ -28,6 +28,19 @@ class FlashcardScreen extends StatefulWidget {
 
 class _FlashcardScreenState extends State<FlashcardScreen>
     with SingleTickerProviderStateMixin {
+  static const _developerSubjects = [
+    'Deployment',
+    'Security',
+    'Development with AWS Services',
+    'Troubleshooting and Optimization',
+  ];
+  static const _architectSubjects = [
+    'Design Cost-Optimized Architectures',
+    'Design High-Performing Architectures',
+    'Design Resilient Architectures',
+    'Design Secure Architectures',
+  ];
+
   bool _isLoading = false;
   String? _errorMessage;
   FlashcardQuestion? _question;
@@ -46,6 +59,16 @@ class _FlashcardScreenState extends State<FlashcardScreen>
       duration: const Duration(milliseconds: 450),
     );
     _fetchRandomQuestion();
+  }
+
+  List<String> _subjectOptions() {
+    if (_selectedCareer == 'Developer Associate') {
+      return _developerSubjects;
+    }
+    if (_selectedCareer == 'Architect Associate') {
+      return _architectSubjects;
+    }
+    return [..._developerSubjects, ..._architectSubjects];
   }
 
   Map<String, String> _buildQueryParameters() {
@@ -238,20 +261,48 @@ class _FlashcardScreenState extends State<FlashcardScreen>
                             value: _selectedCareer,
                             decoration:
                                 const InputDecoration(labelText: 'Career'),
+                            isExpanded: true,
+                            selectedItemBuilder: (context) => const [
+                              Text(
+                                'Developer Associate',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Text(
+                                'Architect Associate',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
                             items: const [
                               DropdownMenuItem(
                                 value: 'Developer Associate',
-                                child: Text('Developer Associate'),
+                                child: Text(
+                                  'Developer Associate',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
                               DropdownMenuItem(
                                 value: 'Architect Associate',
-                                child: Text('Architect Associate'),
+                                child: Text(
+                                  'Architect Associate',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
                             ],
                             onChanged: _isLoading
                                 ? null
                                 : (value) {
-                                    setState(() => _selectedCareer = value);
+                                    setState(() {
+                                      _selectedCareer = value;
+                                      final options = _subjectOptions();
+                                      if (_selectedSubject != null &&
+                                          !options.contains(_selectedSubject)) {
+                                        _selectedSubject = null;
+                                      }
+                                    });
                                   },
                           ),
                         ),
@@ -263,24 +314,19 @@ class _FlashcardScreenState extends State<FlashcardScreen>
                             value: _selectedSubject,
                             decoration:
                                 const InputDecoration(labelText: 'Subject'),
-                            items: const [
-                              DropdownMenuItem(
-                                value: 'Deployment',
-                                child: Text('Deployment'),
-                              ),
-                              DropdownMenuItem(
-                                value: 'Security',
-                                child: Text('Security'),
-                              ),
-                              DropdownMenuItem(
-                                value: 'Development with AWS Services',
-                                child: Text('Development with AWS Services'),
-                              ),
-                              DropdownMenuItem(
-                                value: 'Troubleshooting and Optimization',
-                                child: Text('Troubleshooting and Optimization'),
-                              ),
-                            ],
+                            isExpanded: true,
+                            items: _subjectOptions()
+                                .map(
+                                  (subject) => DropdownMenuItem(
+                                    value: subject,
+                                    child: Text(
+                                      subject,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                )
+                                .toList(),
                             onChanged: _isLoading
                                 ? null
                                 : (value) {
