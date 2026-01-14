@@ -10,6 +10,7 @@ loads them into DynamoDB.
 - DynamoDB table named `Flashcards` in your active AWS region
 
 Python packages:
+
 - `boto3`
 - `pyyaml`
 - `markdown`
@@ -22,8 +23,8 @@ python -m pip install boto3 pyyaml markdown
 
 ## Markdown format
 
-Each file in `questions/` must contain YAML front matter and two sections:
-`## Question` and `## Answer`.
+Each file in `questions/` must include YAML front matter plus `## Question`
+and `## Answer`. `## Multiple Choice` is optional.
 
 ```md
 ---
@@ -36,13 +37,20 @@ subject: IAM
 ## Question
 What does IAM stand for?
 
+## Multiple Choice
+- Identity and Access Management
+- Internet Account Management
+- Internal Access Mechanism
+
 ## Answer
 Identity and Access Management.
 ```
 
 Notes:
+
 - `id` and `locale` are required.
 - `career` and `subject` are optional.
+- If present, `## Multiple Choice` is stored on the question item.
 
 ## Import
 
